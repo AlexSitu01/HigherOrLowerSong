@@ -2,9 +2,10 @@ import axios from "axios";
 import type { PageServerLoad } from "./$types";
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from "$env/static/private";
 
-export interface Song{
+export interface Song {
     title: string,
     artist: string
+    poster: string
 }
 
 export const load: PageServerLoad = async () => {
@@ -42,10 +43,15 @@ export const load: PageServerLoad = async () => {
             }
         }
     );
-    
-    const songs: Song[] = response.data.tracks.items.map((item: { track: { name: any; artists: { name: any; }[]; }; }) => ({
+
+    const songs: Song[] = response.data.tracks.items.map((item: {
+        track: {
+            album: any; name: any; artists: { name: any; }[];
+        };
+    }) => ({
         title: item.track.name,
-        artist: item.track.artists[0].name
+        artist: item.track.artists[0].name,
+        poster: item.track.album.images?.[0].url ?? ""
     }));
 
     return { songs };

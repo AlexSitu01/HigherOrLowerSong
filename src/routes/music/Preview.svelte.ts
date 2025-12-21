@@ -28,17 +28,17 @@ interface PreviewResponse {
 interface PreviewInterface {
     songs: Song[]
     currentSongIndex: number
-    firstSongPreview: string | null
-    secondSongPreview: string | null
+    firstSong: {name: string, previewUrl: string} | null
+    secondSong: {name: string, previewUrl: string} | null
 }
 
 export class Preview implements PreviewInterface {
     songs: Song[]
-    private previews: string[] = []
+    private previews: PreviewInfo[] = []
     private previewIndex: number = 0 //Pointer into the previews buffer
     currentSongIndex: number = 0     //Pointer into the songs list
-    firstSongPreview: string | null = $state(null)
-    secondSongPreview: string | null = $state(null)
+    firstSong: {name: string, previewUrl: string} | null = $state(null)
+    secondSong: {name: string, previewUrl: string} | null = $state(null)
 
     constructor(songs: Song[]) {
         this.songs = songs
@@ -48,8 +48,8 @@ export class Preview implements PreviewInterface {
     private async initialLoad() {
         await this.loadPreviews()
         if (this.previews.length > 2) {
-            this.firstSongPreview = this.previews[0]
-            this.secondSongPreview = this.previews[1]
+            this.firstSong = {name: this.previews[0].name, previewUrl: this.previews[0].previewUrls[0]}
+            this.secondSong = {name: this.previews[1].name, previewUrl: this.previews[1].previewUrls[0]}
             this.previewIndex += 2
             this.currentSongIndex += 2
         }
@@ -62,7 +62,7 @@ export class Preview implements PreviewInterface {
         const promises = []
         for (let i = startIndex; i < endIndex; i++) {
             promises.push(
-                this.getPreview(this.songs[i].title, this.songs[i].artist, 1)
+                this.getPreviewInfo(this.songs[i].title, this.songs[i].artist, 1)
                     .catch(err => {
                         console.error(`Failed to load preview for ${this.songs[i].title}:`, err)
                         return null // Return null for failed previews
@@ -73,10 +73,10 @@ export class Preview implements PreviewInterface {
         this.previews.push(...newPreviews.filter(p => p !== null))
     }
 
-    async nextSong(selectedSong: string): Promise<void> {
+    async nextSong(selectedSong: {name: string, previewUrl: string}): Promise<void> {
         if (this.previewIndex < this.previews.length) {
-            this.firstSongPreview = selectedSong
-            this.secondSongPreview = this.previews[this.previewIndex]
+            this.firstSong = selectedSong
+            this.secondSong = {name: this.previews[this.previewIndex].name , previewUrl: this.previews[this.previewIndex].previewUrls[0]}
             this.previewIndex++
             this.currentSongIndex++
         }
@@ -88,7 +88,7 @@ export class Preview implements PreviewInterface {
         }
     }
 
-    private async getPreview(name: string, artist: string, limit: number) {
+    private async getPreviewInfo(name: string, artist: string, limit: number) {
         try {
             const response = await fetch('/api/preview', {
                 method: 'POST',
@@ -104,7 +104,7 @@ export class Preview implements PreviewInterface {
 
             const data: PreviewResponse = await response.json();
             if (data.success) {
-                return data.results[0].previewUrls[0] as string
+                return data.results[0] as PreviewInfo
             }
             else {
                 throw Error("Failed to fetch preview")

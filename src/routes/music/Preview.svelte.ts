@@ -1,0 +1,119 @@
+import type { Song } from "./+page.server";
+
+const BATCH_NUM_PREVIEWS = 5
+interface PreviewProps {
+    name: string;
+    artist?: string;
+    limit?: number;
+}
+
+interface PreviewInfo {
+    name: string
+    spotifyUrl: string
+    previewUrls: string[]
+    trackId: string
+    albumName: string
+    releaseDate: string
+    popularity: number
+    durationMs: number
+}
+
+interface PreviewResponse {
+    success: boolean
+    searchQuery: string
+    results: PreviewInfo[]
+    error: string
+}
+
+interface PreviewInterface {
+    songs: Song[]
+    currentSongIndex: number
+    firstSongPreview: string | null
+    secondSongPreview: string | null
+}
+
+export class Preview implements PreviewInterface {
+    songs: Song[]
+    private previews: string[] = []
+    private previewIndex: number = 0 //Pointer into the previews buffer
+    currentSongIndex: number = 0     //Pointer into the songs list
+    firstSongPreview: string | null = $state(null)
+    secondSongPreview: string | null = $state(null)
+
+    constructor(songs: Song[]) {
+        this.songs = songs
+        this.initialLoad()
+    }
+
+    private async initialLoad() {
+        await this.loadPreviews()
+        if (this.previews.length > 2) {
+            this.firstSongPreview = this.previews[0]
+            this.secondSongPreview = this.previews[1]
+            this.previewIndex += 2
+            this.currentSongIndex += 2
+        }
+    }
+
+    private async loadPreviews(): Promise<void> {
+        const startIndex = this.currentSongIndex
+        const endIndex = Math.min(startIndex + BATCH_NUM_PREVIEWS, this.songs.length)
+
+        const promises = []
+        for (let i = startIndex; i < endIndex; i++) {
+            promises.push(
+                this.getPreview(this.songs[i].title, this.songs[i].artist, 1)
+                    .catch(err => {
+                        console.error(`Failed to load preview for ${this.songs[i].title}:`, err)
+                        return null // Return null for failed previews
+                    })
+            )
+        }
+        const newPreviews = await Promise.all(promises)
+        this.previews.push(...newPreviews.filter(p => p !== null))
+    }
+
+    async nextSong(selectedSong: string): Promise<void> {
+        if (this.previewIndex < this.previews.length) {
+            this.firstSongPreview = selectedSong
+            this.secondSongPreview = this.previews[this.previewIndex]
+            this.previewIndex++
+            this.currentSongIndex++
+        }
+
+        // Prefetch next batch when buffer is running low
+        const remainingInBuffer = this.previews.length - this.previewIndex
+        if (remainingInBuffer <= 2 && this.currentSongIndex < this.songs.length) {
+            await this.loadPreviews()
+        }
+    }
+
+    private async getPreview(name: string, artist: string, limit: number) {
+        try {
+            const response = await fetch('/api/preview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, artist, limit })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch preview');
+            }
+
+            const data: PreviewResponse = await response.json();
+            if (data.success) {
+                return data.results[0].previewUrls[0] as string
+            }
+            else {
+                throw Error("Failed to fetch preview")
+            }
+        } catch (error) {
+            console.error('Error fetching preview:', error);
+            throw error;
+        }
+    }
+
+
+}

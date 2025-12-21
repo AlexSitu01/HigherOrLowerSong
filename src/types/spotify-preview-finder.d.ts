@@ -4,7 +4,7 @@ declare module 'spotify-preview-finder' {
     [key: string]: any; // fallback for unknown properties
   }
 
-  function spotifyPreviewFinder(query: string, limit?: number): Promise<SpotifyPreviewResult>;
+  function spotifyPreviewFinder(query: string, artist?:string ,limit?: number): Promise<SpotifyPreviewResult>;
 
   export default spotifyPreviewFinder;
 }

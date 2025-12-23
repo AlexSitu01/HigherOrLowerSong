@@ -26,20 +26,17 @@ interface PreviewResponse {
 }
 
 interface PreviewInterface {
-    songs: Song[]
-    currentSongIndex: number
     firstSong: { name: string, previewUrl: string } | null
     secondSong: { name: string, previewUrl: string } | null
     loading: boolean
 }
 
 export class Preview implements PreviewInterface {
-    songs: Song[]
+    private songs: Song[]
     private previews: PreviewInfo[] = []
     private previewIndex: number = 0 //Pointer into the previews buffer
-    currentSongIndex: number = $state(0)     //Pointer into the songs list
-    firstSong: { name: string, previewUrl: string } | null = $state(null)
-    secondSong: { name: string, previewUrl: string } | null = $state(null)
+    firstSong: { name: string, previewUrl: string, artist: string, spotifyUrl: string, popularity: number, poster: string } | null = $state(null)
+    secondSong: { name: string, previewUrl: string, artist: string, spotifyUrl: string, popularity: number, poster: string } | null = $state(null)
     loading: boolean = $state(false)
     private fetching: boolean = false
 
@@ -54,10 +51,9 @@ export class Preview implements PreviewInterface {
     private async initialLoad() {
         await this.loadPreviews()
         if (this.previews.length > 2) {
-            this.firstSong = { name: this.previews[0].name, previewUrl: this.previews[0].previewUrls[0] }
-            this.secondSong = { name: this.previews[1].name, previewUrl: this.previews[1].previewUrls[0] }
+            this.firstSong = { name: this.songs[0].title, previewUrl: this.previews[0].previewUrls[0], artist: this.songs[0].artist, spotifyUrl: this.previews[0].spotifyUrl, popularity: this.previews[0].popularity, poster: this.songs[0].poster }
+            this.secondSong = { name: this.songs[1].title, previewUrl: this.previews[1].previewUrls[0], artist: this.songs[1].artist, spotifyUrl: this.previews[1].spotifyUrl, popularity: this.previews[1].popularity, poster: this.songs[1].poster }
             this.previewIndex += 2
-            this.currentSongIndex += 2
         }
     }
 
@@ -90,13 +86,12 @@ export class Preview implements PreviewInterface {
         }
 
         this.firstSong = this.secondSong
-        this.secondSong = { name: this.previews[this.previewIndex].name, previewUrl: this.previews[this.previewIndex].previewUrls[0] }
+        this.secondSong = { name: this.songs[this.previewIndex].title, previewUrl: this.previews[this.previewIndex].previewUrls[0], artist: this.songs[this.previewIndex].artist, spotifyUrl: this.previews[this.previewIndex].spotifyUrl, popularity: this.previews[this.previewIndex].popularity, poster: this.songs[this.previewIndex].poster }
         this.previewIndex++
-        this.currentSongIndex++
 
         // Prefetch next batch when buffer is running low
         const remainingInBuffer = this.previews.length - this.previewIndex
-        if (remainingInBuffer <= 4 && this.currentSongIndex < this.songs.length && !this.fetching) {
+        if (remainingInBuffer <= 4 && this.previewIndex < this.songs.length && !this.fetching) {
             this.fetching = true
             try {
                 await this.loadPreviews(this.previews.length)

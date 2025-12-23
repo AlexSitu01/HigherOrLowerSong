@@ -44,14 +44,14 @@
 	</button>
 
 
-	{#if preview?.firstSong}
+	{#if preview?.firstSong && !preview?.loading}
 		<AudioPlayer src={preview.firstSong?.previewUrl} />
 		{console.log(songs[preview.currentSongIndex - 2])}
 		{console.log(preview.firstSong?.previewUrl)}
 		{console.log()}
 		<img src={songs[preview.currentSongIndex - 2].poster} alt="poster" />
 	{/if}
-	{#if preview?.secondSong}
+	{#if preview?.secondSong && !preview?.loading}
 		<AudioPlayer src={preview.secondSong?.previewUrl} />
 		<img src={songs[preview.currentSongIndex - 1].poster} alt="poster" />
 	{/if}

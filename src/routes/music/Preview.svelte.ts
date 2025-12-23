@@ -28,8 +28,9 @@ interface PreviewResponse {
 interface PreviewInterface {
     songs: Song[]
     currentSongIndex: number
-    firstSong: {name: string, previewUrl: string} | null
-    secondSong: {name: string, previewUrl: string} | null
+    firstSong: { name: string, previewUrl: string } | null
+    secondSong: { name: string, previewUrl: string } | null
+    loading: boolean
 }
 
 export class Preview implements PreviewInterface {
@@ -37,19 +38,23 @@ export class Preview implements PreviewInterface {
     private previews: PreviewInfo[] = []
     private previewIndex: number = 0 //Pointer into the previews buffer
     currentSongIndex: number = $state(0)     //Pointer into the songs list
-    firstSong: {name: string, previewUrl: string} | null = $state(null)
-    secondSong: {name: string, previewUrl: string} | null = $state(null)
+    firstSong: { name: string, previewUrl: string } | null = $state(null)
+    secondSong: { name: string, previewUrl: string } | null = $state(null)
+    loading: boolean = $state(false)
+    private fetching: boolean = false
 
     constructor(songs: Song[]) {
+        this.loading = true
         this.songs = songs
         this.initialLoad()
+        this.loading = false
     }
 
     private async initialLoad() {
         await this.loadPreviews()
         if (this.previews.length > 2) {
-            this.firstSong = {name: this.previews[0].name, previewUrl: this.previews[0].previewUrls[0]}
-            this.secondSong = {name: this.previews[1].name, previewUrl: this.previews[1].previewUrls[0]}
+            this.firstSong = { name: this.previews[0].name, previewUrl: this.previews[0].previewUrls[0] }
+            this.secondSong = { name: this.previews[1].name, previewUrl: this.previews[1].previewUrls[0] }
             this.previewIndex += 2
             this.currentSongIndex += 2
         }
@@ -74,17 +79,31 @@ export class Preview implements PreviewInterface {
     }
 
     async nextSong(): Promise<void> {
-        if (this.previewIndex < this.previews.length) {
-            this.firstSong = this.secondSong
-            this.secondSong = {name: this.previews[this.previewIndex].name , previewUrl: this.previews[this.previewIndex].previewUrls[0]}
-            this.previewIndex++
-            this.currentSongIndex++
+        // If next song is not available, return early
+        if (this.previewIndex >= this.previews.length) {
+            return;
         }
 
+        if (this.previewIndex == this.previews.length - 1) {
+            this.loading = true
+        }
+        
+        this.firstSong = this.secondSong
+        this.secondSong = { name: this.previews[this.previewIndex].name, previewUrl: this.previews[this.previewIndex].previewUrls[0] }
+        this.previewIndex++
+        this.currentSongIndex++
+        
         // Prefetch next batch when buffer is running low
-        const remainingInBuffer = this.previews.length - this.previewIndex
-        if (remainingInBuffer <= 2 && this.currentSongIndex < this.songs.length) {
-            await this.loadPreviews(this.previews.length)
+        const remainingInBuffer = this.previews.length - this.previewIndex 
+        if (remainingInBuffer <= 2 && this.currentSongIndex < this.songs.length && !this.fetching) {
+            this.fetching = true
+            try{
+                await this.loadPreviews(this.previews.length)
+            }
+            finally{
+                this.fetching = false
+                this.loading = false
+            }
         }
     }
 

@@ -1,20 +1,32 @@
 <script lang="ts">
-	let { src } = $props();
+	import Seekbar from './Seekbar.svelte';
+
+	let { src, volume } = $props();
+	const INITIAL_VOLUME = 0.3;
 	// svelte-ignore state_referenced_locally
-		const audioSource = src as string;
+	const audioSource = src as string;
 	// 2. Declare a variable to hold the reference to the <audio> DOM element.
 	let audioPlayer: HTMLAudioElement;
-    
+
 	// 3. State to track if the audio is playing or paused
 	let isPlaying = $state(false);
+	let currentTime = $state(0);
+	let duration = $state(0);
+	let isDragging = false;
 
-    $effect(() => {
+	$effect(() => {
 		if (audioPlayer && src) {
 			audioPlayer.src = src;
-			audioPlayer.load();         
+			audioPlayer.load();
 			isPlaying = false;
 			audioPlayer.currentTime = 0; // Rewind when the source changes
-			audioPlayer.volume = 0.3; // Set initial volume
+			audioPlayer.volume = INITIAL_VOLUME; // Set initial volume
+		}
+	});
+
+	$effect(() => {
+		if (audioPlayer) {
+			audioPlayer.volume = volume;
 		}
 	});
 
@@ -30,6 +42,16 @@
 			console.error(e);
 		}
 	}
+
+	function handleLoadedMetadata() {
+		duration = audioPlayer.duration;
+	}
+
+	function handleTimeUpdate() {
+		if (!isDragging) {
+			currentTime = audioPlayer.currentTime;
+		}
+	}
 </script>
 
 <!-- 5. Hidden <audio> element bound to the audioPlayer variable -->
@@ -42,6 +64,8 @@
 		isPlaying = false;
 		audioPlayer.currentTime = 0; // Rewind when finished
 	}}
+	ontimeupdate={handleTimeUpdate}
+	onloadedmetadata={handleLoadedMetadata}
 ></audio>
 
 <!-- 6. Button with click handler -->
@@ -74,3 +98,5 @@
 		</svg>
 	{/if}
 </button>
+
+<Seekbar bind:currentTime bind:duration bind:isDragging {audioPlayer} />

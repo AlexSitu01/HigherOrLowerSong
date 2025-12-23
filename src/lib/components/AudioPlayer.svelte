@@ -13,6 +13,8 @@
 			audioPlayer.src = src;
 			audioPlayer.load();         
 			isPlaying = false;
+			audioPlayer.currentTime = 0; // Rewind when the source changes
+			audioPlayer.volume = 0.3; // Set initial volume
 		}
 	});
 

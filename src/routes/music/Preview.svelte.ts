@@ -36,7 +36,7 @@ export class Preview implements PreviewInterface {
     songs: Song[]
     private previews: PreviewInfo[] = []
     private previewIndex: number = 0 //Pointer into the previews buffer
-    currentSongIndex: number = 0     //Pointer into the songs list
+    currentSongIndex: number = $state(0)     //Pointer into the songs list
     firstSong: {name: string, previewUrl: string} | null = $state(null)
     secondSong: {name: string, previewUrl: string} | null = $state(null)
 
@@ -55,8 +55,8 @@ export class Preview implements PreviewInterface {
         }
     }
 
-    private async loadPreviews(): Promise<void> {
-        const startIndex = this.currentSongIndex
+    private async loadPreviews(start: number = 0): Promise<void> {
+        const startIndex = start
         const endIndex = Math.min(startIndex + BATCH_NUM_PREVIEWS, this.songs.length)
 
         const promises = []
@@ -73,9 +73,9 @@ export class Preview implements PreviewInterface {
         this.previews.push(...newPreviews.filter(p => p !== null))
     }
 
-    async nextSong(selectedSong: {name: string, previewUrl: string}): Promise<void> {
+    async nextSong(): Promise<void> {
         if (this.previewIndex < this.previews.length) {
-            this.firstSong = selectedSong
+            this.firstSong = this.secondSong
             this.secondSong = {name: this.previews[this.previewIndex].name , previewUrl: this.previews[this.previewIndex].previewUrls[0]}
             this.previewIndex++
             this.currentSongIndex++
@@ -84,7 +84,7 @@ export class Preview implements PreviewInterface {
         // Prefetch next batch when buffer is running low
         const remainingInBuffer = this.previews.length - this.previewIndex
         if (remainingInBuffer <= 2 && this.currentSongIndex < this.songs.length) {
-            await this.loadPreviews()
+            await this.loadPreviews(this.previews.length)
         }
     }
 

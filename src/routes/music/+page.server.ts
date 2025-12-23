@@ -49,7 +49,8 @@ export const load: PageServerLoad = async () => {
                 params: {
                     limit,
                     offset,
-                    market: "US"
+                    market: "US",
+                    fields: "items(track(name,artists(name),album(images))),next"
                 }
             }
         );

@@ -49,14 +49,13 @@
 
 	{#if preview?.firstSong && !preview?.loading}
 		<AudioPlayer src={preview.firstSong?.previewUrl} />
-		{console.log(songs[preview.currentSongIndex - 2])}
 		{console.log(preview.firstSong?.previewUrl)}
 		{console.log()}
-		<img src={songs[preview.currentSongIndex - 2].poster} alt="poster" />
+		<img src={preview.firstSong?.poster} alt="poster" />
 	{/if}
 	{#if preview?.secondSong && !preview?.loading}
 		<AudioPlayer src={preview.secondSong?.previewUrl} />
-		<img src={songs[preview.currentSongIndex - 1].poster} alt="poster" />
+		<img src={preview.secondSong?.poster} alt="poster" />
 	{/if}
 	<div>Total Songs: {songs.length}</div>
 </div>

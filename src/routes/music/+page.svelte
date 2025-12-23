@@ -19,8 +19,8 @@
 	});
 </script>
 
-<div class="flex h-screen w-screen flex-col items-center justify-center gap-y-4">
-	<div class="dsf justify-self-center">{score}</div>
+<div class="flex flex-col items-center justify-center gap-y-4">
+	<div class="justify-self-center">{score}</div>
 	<div>{highscore.value}</div>
 
 	<button class="cursor-pointer rounded-2xl border-2 px-3 py-2" onclick={incrementScore}>
@@ -38,7 +38,7 @@
 
 	<button
 		class="cursor-pointer rounded-2xl border-2 px-3 py-2"
-		onclick={() => preview?.nextSong(preview.secondSong ?? { name: '', previewUrl: '' })}
+		onclick={() => preview?.nextSong()}
 	>
 		Get Next song
 	</button>
@@ -47,6 +47,8 @@
 	{#if preview?.firstSong}
 		<AudioPlayer src={preview.firstSong?.previewUrl} />
 		{console.log(songs[preview.currentSongIndex - 2])}
+		{console.log(preview.firstSong?.previewUrl)}
+		{console.log()}
 		<img src={songs[preview.currentSongIndex - 2].poster} alt="poster" />
 	{/if}
 	{#if preview?.secondSong}

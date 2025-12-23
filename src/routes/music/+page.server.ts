@@ -2,6 +2,9 @@ import axios from "axios";
 import type { PageServerLoad } from "./$types";
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from "$env/static/private";
 
+const PLAYLIST_ID = "7nnkHluVGMvzxEFI1aEWOb";
+const MAX_SONGS = 200;
+
 export interface Song {
     title: string,
     artist: string
@@ -34,25 +37,39 @@ export const load: PageServerLoad = async () => {
         }
     })
 
-    const response = await instance.get(
-        "playlists/7nnkHluVGMvzxEFI1aEWOb",
-        {
-            params: {
-                limit: 50,
-                market: "US"
+    let offset = 0;
+    const limit = 50;
+    let allSongs: Song[] = [];
+    let hasNext = true;
+
+    while (hasNext && allSongs.length < MAX_SONGS) {
+        const response = await instance.get(
+            `playlists/${PLAYLIST_ID}/tracks`,
+            {
+                params: {
+                    limit,
+                    offset,
+                    market: "US"
+                }
             }
-        }
-    );
+        );
 
-    const songs: Song[] = response.data.tracks.items.map((item: {
-        track: {
-            album: any; name: any; artists: { name: any; }[];
-        };
-    }) => ({
-        title: item.track.name,
-        artist: item.track.artists[0].name,
-        poster: item.track.album.images?.[0].url ?? ""
-    }));
+        const items = response.data.items;
 
-    return { songs };
+        const songs: Song[] = items
+            .filter((item: any) => item.track) // protect against null tracks
+            .map((item: any) => ({
+                title: item.track.name,
+                artist: item.track.artists?.[0]?.name ?? "Unknown Artist",
+                poster: item.track.album?.images?.[0]?.url ?? ""
+            }));
+
+        allSongs.push(...songs);
+
+        hasNext = response.data.next !== null;
+        offset += limit;
+    }
+
+    return { songs: allSongs };
+
 };

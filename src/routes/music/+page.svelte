@@ -3,10 +3,12 @@
 	import { highscore } from '../../globalState.svelte';
 	import { Preview } from './Preview.svelte.js';
 	import AudioPlayer from '$lib/components/AudioPlayer.svelte';
+	import VolumeSlider from '$lib/components/VolumeSlider.svelte';
 
 	const { data } = $props();
 	const songs = $derived(data.songs); // Extract the songs array
 	let preview: Preview | null = $state(null);
+	let volume = $state(0.3)
 
 	let score = $state(0);
 
@@ -48,14 +50,18 @@
 	{/if}
 
 	{#if preview?.firstSong && !preview?.loading}
-		<AudioPlayer src={preview.firstSong?.previewUrl} />
+		<AudioPlayer src={preview.firstSong?.previewUrl} {volume} />
 		{console.log(preview.firstSong?.previewUrl)}
 		{console.log()}
 		<img src={preview.firstSong?.poster} alt="poster" />
 	{/if}
 	{#if preview?.secondSong && !preview?.loading}
-		<AudioPlayer src={preview.secondSong?.previewUrl} />
+		<AudioPlayer src={preview.secondSong?.previewUrl} {volume}/>
 		<img src={preview.secondSong?.poster} alt="poster" />
 	{/if}
 	<div>Total Songs: {songs.length}</div>
+
+	<div class="absolute top-4 right-5">
+		<VolumeSlider bind:volume></VolumeSlider>
+	</div>
 </div>

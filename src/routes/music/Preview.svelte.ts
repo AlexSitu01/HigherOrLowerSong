@@ -1,6 +1,6 @@
 import type { Song } from "./+page.server";
 
-const BATCH_NUM_PREVIEWS = 5
+const BATCH_NUM_PREVIEWS = 10
 interface PreviewProps {
     name: string;
     artist?: string;
@@ -45,6 +45,7 @@ export class Preview implements PreviewInterface {
 
     constructor(songs: Song[]) {
         this.loading = true
+        this.shuffle(songs)
         this.songs = songs
         this.initialLoad()
         this.loading = false
@@ -87,20 +88,20 @@ export class Preview implements PreviewInterface {
         if (this.previewIndex == this.previews.length - 1) {
             this.loading = true
         }
-        
+
         this.firstSong = this.secondSong
         this.secondSong = { name: this.previews[this.previewIndex].name, previewUrl: this.previews[this.previewIndex].previewUrls[0] }
         this.previewIndex++
         this.currentSongIndex++
-        
+
         // Prefetch next batch when buffer is running low
-        const remainingInBuffer = this.previews.length - this.previewIndex 
-        if (remainingInBuffer <= 2 && this.currentSongIndex < this.songs.length && !this.fetching) {
+        const remainingInBuffer = this.previews.length - this.previewIndex
+        if (remainingInBuffer <= 4 && this.currentSongIndex < this.songs.length && !this.fetching) {
             this.fetching = true
-            try{
+            try {
                 await this.loadPreviews(this.previews.length)
             }
-            finally{
+            finally {
                 this.fetching = false
                 this.loading = false
             }
@@ -131,6 +132,22 @@ export class Preview implements PreviewInterface {
         } catch (error) {
             console.error('Error fetching preview:', error);
             throw error;
+        }
+    }
+
+    private shuffle(array: any[]) {
+        let currentIndex = array.length;
+
+        // While there remain elements to shuffle...
+        while (currentIndex != 0) {
+
+            // Pick a remaining element...
+            let randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
         }
     }
 

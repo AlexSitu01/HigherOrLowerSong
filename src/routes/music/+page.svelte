@@ -5,7 +5,7 @@
 	import AudioPlayer from '$lib/components/AudioPlayer.svelte';
 
 	const { data } = $props();
-	const songs = data.songs; // Extract the songs array
+	const songs = $derived(data.songs); // Extract the songs array
 	let preview: Preview | null = $state(null);
 
 	let score = $state(0);
@@ -36,13 +36,16 @@
 		update Highscore
 	</button>
 
-	<button
-		class="cursor-pointer rounded-2xl border-2 px-3 py-2"
-		onclick={() => preview?.nextSong()}
-	>
-		Get Next song
-	</button>
-
+	{#if preview?.loading}
+		<div>Loading...</div>
+	{:else}
+		<button
+			class="cursor-pointer rounded-2xl border-2 px-3 py-2"
+			onclick={() => preview?.nextSong()}
+		>
+			Get Next song
+		</button>
+	{/if}
 
 	{#if preview?.firstSong && !preview?.loading}
 		<AudioPlayer src={preview.firstSong?.previewUrl} />
@@ -55,4 +58,5 @@
 		<AudioPlayer src={preview.secondSong?.previewUrl} />
 		<img src={songs[preview.currentSongIndex - 1].poster} alt="poster" />
 	{/if}
+	<div>Total Songs: {songs.length}</div>
 </div>

@@ -35,7 +35,7 @@ interface PreviewInterface {
 export class Preview implements PreviewInterface {
     songs: Song[]
     private previews: PreviewInfo[] = []
-    private previewIndex: number = $state(0) //Pointer into the previews buffer
+    private previewIndex: number = 0 //Pointer into the previews buffer
     currentSongIndex: number = $state(0)     //Pointer into the songs list
     firstSong: {name: string, previewUrl: string} | null = $state(null)
     secondSong: {name: string, previewUrl: string} | null = $state(null)

@@ -31,12 +31,21 @@ interface PreviewInterface {
     loading: boolean
 }
 
+export interface PreviewSong {
+	name: string;
+	previewUrl: string;
+	artist: string;
+	spotifyUrl: string;
+	popularity: number;
+	poster: string;
+}
+
 export class Preview implements PreviewInterface {
     private songs: Song[]
     private previews: PreviewInfo[] = []
     private previewIndex: number = 0 //Pointer into the previews buffer
-    firstSong: { name: string, previewUrl: string, artist: string, spotifyUrl: string, popularity: number, poster: string } | null = $state(null)
-    secondSong: { name: string, previewUrl: string, artist: string, spotifyUrl: string, popularity: number, poster: string } | null = $state(null)
+    firstSong: PreviewSong | null = $state(null)
+    secondSong: PreviewSong | null = $state(null)
     loading: boolean = $state(false)
     private fetching: boolean = false
 

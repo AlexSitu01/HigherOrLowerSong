@@ -15,9 +15,10 @@
 	onMount(() => {
 		playlist.load();
 	});
-	let volume = $state(0.3)
+	let volume = $state(0.3);
 
 	let score = $state(0);
+
 	const incrementScore = () => {
 		score++;
 		highscore.updateScore(score);
@@ -38,26 +39,31 @@
 	};
 </script>
 
-<div class="absolute top-10 left-[50%] translate-x-[-50%] translate-y-[-50%] text-2xl font-semibold">
-	{score}
+<div class="m-6 flex items-center justify-center gap-4 text-2xl font-semibold relative">
+	<span>
+		{score}
+	</span>
+	<div class="right-0 absolute">
+		<VolumeSlider bind:volume />
+	</div>
 </div>
 <main
-	class="relative flex flex-col items-center justify-center gap-10 overflow-x-hidden overscroll-none p-8 sm:flex-row sm:p-20"
+	class="relative flex flex-col items-center justify-center gap-10 overflow-x-hidden overscroll-none pt-0 pb-8 sm:flex-row sm:p-20 sm:pt-0"
 >
 	{#if !playlist.loading}
 		{#if playlist.previews[0]}
 			<div data-card1={slideCards}>
-				<MusicCard preview={playlist.previews[0]}>
+				<MusicCard preview={playlist.previews[0]} {volume}>
 					<PopularityPlain popularity={playlist.previews[0].popularity} />
 				</MusicCard>
 			</div>
 		{/if}
 
-		<span class="w-10 text-center text-2xl font-bold">vs</span>
+		<span class="-z-10 w-10 text-center text-2xl font-bold">vs</span>
 
 		{#if playlist.previews[1]}
 			<div data-card2={slideCards} class="relative">
-				<MusicCard preview={playlist.previews[1]}>
+				<MusicCard preview={playlist.previews[1]} {volume}>
 					{#key playlist.previews[1]}
 						<PopularityGuessable
 							disabled={slideCards}
@@ -74,9 +80,9 @@
 					<div
 						data-card3={slideCards}
 						aria-hidden="true"
-						class="absolute translate-x-[50vw] -translate-y-full"
+						class="absolute hidden translate-x-[50vw] -translate-y-full sm:block"
 					>
-						<MusicCard preview={playlist.previews[2]}>
+						<MusicCard preview={playlist.previews[2]} {volume}>
 							{#key playlist.previews[2]}
 								<PopularityGuessable
 									disabled
@@ -91,41 +97,37 @@
 		{/if}
 	{/if}
 </main>
-<button onclick={() => playlist.nextSong()} class="cursor-pointer rounded-2xl border-2 p-2"
-	>Next Song</button
->
-<button onclick={() => (slideCards = !slideCards)} class="cursor-pointer rounded-2xl border-2 p-2"
-	>Toggle Anim</button
->
 
 <style>
-	div[data-card1='true'] {
-		animation: card1 1.5s ease-out forwards;
-	}
-
-	div[data-card2='true'] {
-		animation: card2 1.5s ease-in-out forwards;
-	}
-
-	div[data-card3='true'] {
-		animation: card3 1.5s ease-in-out forwards;
-	}
-
-	@keyframes card1 {
-		to {
-			translate: -50vw;
+	@media (min-width: 640px) {
+		div[data-card1='true'] {
+			animation: card1 1.5s ease-out forwards;
 		}
-	}
 
-	@keyframes card2 {
-		to {
-			translate: calc(-31.5rem + -4px);
+		div[data-card2='true'] {
+			animation: card2 1.5s ease-in-out forwards;
 		}
-	}
 
-	@keyframes card3 {
-		to {
-			transform: translateX(calc(-50vw + 31.5rem + 4px));
+		div[data-card3='true'] {
+			animation: card3 1.5s ease-in-out forwards;
+		}
+
+		@keyframes card1 {
+			to {
+				translate: -50vw;
+			}
+		}
+
+		@keyframes card2 {
+			to {
+				translate: calc(-31.5rem + -4px);
+			}
+		}
+
+		@keyframes card3 {
+			to {
+				transform: translateX(calc(-50vw + 31.5rem + 4px));
+			}
 		}
 	}
 </style>

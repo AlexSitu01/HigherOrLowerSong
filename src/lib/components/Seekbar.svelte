@@ -79,7 +79,7 @@
 
 <svelte:window on:mousemove={handleMouseMove} on:mouseup={handleMouseUp} />
 
-<div class="flex flex-1 items-center gap-2">
+<div class="flex items-center gap-2 self-stretch">
 	<span class="min-w-10 font-mono text-sm text-gray-600">
 		{formatTime(currentTime)}
 	</span>
@@ -87,7 +87,7 @@
 	<!-- svelte-ignore element_invalid_self_closing_tag -->
 	<div
 		bind:this={seekBarEl}
-		class="relative h-2 w-70 flex-1 cursor-pointer rounded-full bg-gray-300"
+		class="relative h-2 flex-1 cursor-pointer rounded-full bg-gray-300"
 		onmousedown={handleMouseDown}
 		onkeydown={handleKeyDown}
 		role="slider"

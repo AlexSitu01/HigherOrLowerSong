@@ -6,13 +6,13 @@
 	interface Props {
 		preview: PreviewSong;
 		children: Snippet;
-		dos?: number;
+		volume: number;
 	}
 
-	let { preview, children, dos = 1 }: Props = $props();
+	let { preview, children, volume }: Props = $props();
 </script>
 
-<div class="flex flex-col gap-3 rounded-2xl border-2 p-8 shadow-xl">
+<div class="flex flex-col gap-3 rounded-2xl border-2 p-8 shadow-xl bg-white">
 	<a href={preview.spotifyUrl} target="_blank" class="self-center">
 		<img
 			src={preview.poster}
@@ -22,7 +22,7 @@
 	</a>
 
 	<div class="max-w-60 sm:max-w-80">
-		<h2 class=" text-lg leading-5 font-bold line-clamp-1">{preview.name.repeat(dos)}</h2>
+		<h2 class=" line-clamp-1 text-lg leading-5 font-bold">{preview.name}</h2>
 		<p class="text-lg">
 			<span class="sr-only">by</span><cite class="line-clamp-1 not-italic">{preview.artist}</cite>
 		</p>
@@ -30,7 +30,7 @@
 
 	{@render children()}
 
-	<div class="self-center">
-		<AudioPlayer src={preview.previewUrl} />
+	<div class="flex flex-col items-center justify-center gap-3">
+		<AudioPlayer src={preview.previewUrl} {volume} />
 	</div>
 </div>

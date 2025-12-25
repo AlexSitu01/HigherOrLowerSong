@@ -56,7 +56,7 @@
 
 	<div class="relative flex h-10 items-center justify-center self-stretch">
 		{#if !didGuess}
-			<div transition:fade={{ duration: 500 }} class="absolute flex text-4xl font-semibold">
+			<div transition:fade={{ duration: 200 }} class="absolute flex text-4xl font-semibold">
 				<button
 					{disabled}
 					onclick={() => guessPopularity('high')}
@@ -73,15 +73,15 @@
 			<div
 				id="popularityView"
 				data-correct={correct}
-				transition:fade={{ delay: 750, duration: 900 }}
+				transition:fade={{ delay: 200, duration: 500 }}
 				class="absolute text-4xl font-semibold"
 			>
 				<NumberFlow
 					value={popularityView}
 					suffix="%"
 					spinTiming={{
-						delay: 550,
-						duration: 1600,
+						delay: 200,
+						duration: 1000,
 						easing: 'ease-out'
 					}}
 					class="transition-colors duration-500"

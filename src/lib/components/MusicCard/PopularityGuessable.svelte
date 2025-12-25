@@ -31,10 +31,18 @@
 
 		if (guess === 'high') {
 			correct = thisPopularity >= otherPopularity;
-			oncorrect?.();
+			if (correct) {
+				oncorrect?.();
+			} else {
+				onincorrect?.();
+			}
 		} else {
 			correct = thisPopularity <= otherPopularity;
-			onincorrect?.();
+			if (correct) {
+				oncorrect?.();
+			} else {
+				onincorrect?.();
+			}
 		}
 
 		setTimeout(() => {

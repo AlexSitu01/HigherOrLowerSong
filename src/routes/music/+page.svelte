@@ -21,6 +21,10 @@
 		highscore.updateScore(score);
 	};
 
+	const resetScore = () => {
+		score = 0;
+	};
+
 	let slideCards = $state(false);
 	const onGuess = async () => {
 		await new Promise((r) => setTimeout(r, 2500));
@@ -32,8 +36,11 @@
 	};
 </script>
 
+<div class="absolute top-10 left-[50%] translate-x-[-50%] translate-y-[-50%] text-2xl font-semibold">
+	{score}
+</div>
 <main
-	class="relative flex flex-col items-center justify-center gap-10 overscroll-none p-8 sm:flex-row sm:p-20"
+	class="relative flex flex-col items-center justify-center gap-10 overflow-x-hidden overscroll-none p-8 sm:flex-row sm:p-20"
 >
 	{#if !playlist.loading}
 		{#if playlist.previews[0]}
@@ -55,7 +62,8 @@
 							oncorrect={incrementScore}
 							onguessed={onGuess}
 							thisPopularity={playlist.previews[1].popularity}
-							otherPopularity={playlist.previews[1].popularity}
+							otherPopularity={playlist.previews[0].popularity}
+							onincorrect={resetScore}
 						/>
 					{/key}
 				</MusicCard>

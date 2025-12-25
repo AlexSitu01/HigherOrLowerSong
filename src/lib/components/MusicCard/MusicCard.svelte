@@ -22,9 +22,9 @@
 	</a>
 
 	<div class="max-w-60 sm:max-w-80">
-		<h2 class=" text-lg leading-5 font-bold">{preview.name.repeat(dos)}</h2>
+		<h2 class=" text-lg leading-5 font-bold line-clamp-1">{preview.name.repeat(dos)}</h2>
 		<p class="text-lg">
-			<span class="sr-only">by</span><cite class="line-clamp-2 not-italic">{preview.artist}</cite>
+			<span class="sr-only">by</span><cite class="line-clamp-1 not-italic">{preview.artist}</cite>
 		</p>
 	</div>
 

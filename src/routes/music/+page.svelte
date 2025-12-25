@@ -6,6 +6,7 @@
 	import { Playlist } from './Playlist.svelte';
 	import PopularityGuessable from '$lib/components/MusicCard/PopularityGuessable.svelte';
 	import VolumeSlider from '$lib/components/VolumeSlider.svelte';
+	import GameOverModal from '$lib/components/GameOverModal.svelte';
 
 	const { data } = $props();
 
@@ -24,8 +25,9 @@
 		highscore.updateScore(score);
 	};
 
-	const resetScore = () => {
-		score = 0;
+	let gameOver = $state(false)
+	const endGame = () => {
+		gameOver = true;
 	};
 
 	let slideCards = $state(false);
@@ -71,7 +73,7 @@
 							onguessed={onGuess}
 							thisPopularity={playlist.previews[1].popularity}
 							otherPopularity={playlist.previews[0].popularity}
-							onincorrect={resetScore}
+							onincorrect={endGame}
 						/>
 					{/key}
 				</MusicCard>
@@ -96,20 +98,21 @@
 			</div>
 		{/if}
 	{/if}
+	<GameOverModal bind:score playlist={playlist} bind:showModal={gameOver}></GameOverModal>
 </main>
 
 <style>
 	@media (min-width: 640px) {
 		div[data-card1='true'] {
-			animation: card1 1.5s ease-out forwards;
+			animation: card1 1.0s ease-out forwards;
 		}
 
 		div[data-card2='true'] {
-			animation: card2 1.5s ease-in-out forwards;
+			animation: card2 1.0s ease-in-out forwards;
 		}
 
 		div[data-card3='true'] {
-			animation: card3 1.5s ease-in-out forwards;
+			animation: card3 1.0s ease-in-out forwards;
 		}
 
 		@keyframes card1 {
